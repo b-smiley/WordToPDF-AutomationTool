@@ -1,0 +1,61 @@
+' This Code was created by Brendan Smiley - 1/15/2023
+' ChatGPT and Microsoft's VBA documentation was a reference in designing this script
+
+
+Sub ExportWordDocsToPDF()
+    ' Declare and Set Variables
+    Dim objWord As Object
+    Dim objDoc As Object
+    Dim strFile As String
+    Dim strPath As String
+    Dim strFileType As String
+    
+    strFileType = "*.docx" ' Will Only convert .docx
+    
+    ' Prompt User to select Folder containing Word Documents
+    strPath = GetFolderPath()
+    
+    ' If they did select a folder
+    If strPath <> "" Then
+        
+        Set objWord = CreateObject("Word.Application")
+        objWord.Visible = False
+        strFile = Dir(strPath & "\" & strFileType)
+        
+        Do While strFile <> ""
+            Set objDoc = objWord.Documents.Open(strPath & "\" & strFile)
+            objDoc.SaveAs2 FileName:=Replace(strPath & "\" & strFile, ".docx", ".pdf"), FileFormat:=wdFormatPDF
+            objDoc.Close
+            strFile = Dir()
+                
+        Loop
+        
+        objWord.Quit
+        Set objWord = Nothing
+        Set objDoc = Nothing
+        
+        MsgBox "All Documents have been converted to PDF format and saved in the selected folder."
+        
+    Else
+        MsgBox "No folder was selected."
+    End If
+End Sub
+
+
+Function GetFolderPath() As String
+    ' Declare Variables
+    Dim folder As FileDialog
+    Set folder = Application.FileDialog(msoFileDialogFolderPicker)
+    
+    With folder
+        .Title = "Select a folder"
+        .AllowMultiSelect = False
+        If .Show = -1 Then
+            GetFolderPath = .SelectedItems(1)
+        Else
+            GetFolderPath = ""
+        End If
+        
+    End With
+
+End Function
